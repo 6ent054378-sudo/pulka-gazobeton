@@ -9,8 +9,9 @@
   function maskPhone(input) {
     input.addEventListener("input", function () {
       var d = input.value.replace(/\D/g, "");
+      if (!d) { input.value = ""; return; }
       if (d.charAt(0) === "8") d = "7" + d.slice(1);
-      if (d.charAt(0) !== "7") d = "7" + d;
+      else if (d.charAt(0) !== "7") d = "7" + d;
       d = d.slice(0, 11);
       var s = "+7";
       if (d.length > 1) s += " (" + d.slice(1, 4);
@@ -27,8 +28,16 @@
   function send(payload) {
     payload.utm = utm(); payload.page = location.href; payload.sentAt = new Date().toISOString();
     if (!cfg.webhookUrl) return isLocal() ? Promise.resolve({ demo: true }) : Promise.reject(new Error("no-webhook"));
-    return fetch(cfg.webhookUrl, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
-      .then(function (r) { if (!r.ok) throw new Error("http-" + r.status); return r; });
+    var opt = { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload), keepalive: true };
+    var ctrl = typeof AbortController === "function" ? new AbortController() : null;
+    var timer = null;
+    if (ctrl) { opt.signal = ctrl.signal; timer = setTimeout(function () { ctrl.abort(); }, 15000); }
+    function done() { if (timer) clearTimeout(timer); }
+    return fetch(cfg.webhookUrl, opt).then(function (r) {
+      done();
+      if (!r.ok) throw new Error("http-" + r.status);
+      return r;
+    }, function (e) { done(); throw e; });
   }
   window.Lead = { maskPhone: maskPhone, validPhone: validPhone, send: send, goal: goal, isLocal: isLocal };
 })();
