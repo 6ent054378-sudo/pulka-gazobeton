@@ -1,0 +1,72 @@
+.quiz{overflow:hidden;border:1px solid rgba(17,24,39,.1);border-radius:var(--radius);background:var(--bg)}
+.q-bar{height:4px;background:rgba(17,24,39,.05)}
+.q-fill{height:100%;background:var(--accent);transform-origin:left;transition:transform .3s}
+.q-panel{padding:24px 12px}
+.q-title{margin:0;font-size:20px;line-height:1.2;font-weight:700;outline:none}
+.q-sub{margin:8px 0 0;font-size:14px;line-height:1.6;color:var(--muted)}
+.q-grid{margin-top:24px;display:grid;grid-template-columns:1fr;gap:8px}
+.q-opt{display:flex;align-items:center;gap:12px;min-height:44px;width:100%;text-align:left;font:inherit;font-size:14px;font-weight:500;color:var(--fg);background:var(--warm);border:1px solid rgba(17,24,39,.1);border-radius:12px;padding:12px 16px;cursor:pointer;transition:border-color .15s,background .15s}
+.q-opt:hover{border-color:rgba(59,130,246,.4);background:rgba(59,130,246,.05)}
+.q-opt:focus-visible{outline:2px solid rgba(59,130,246,.5);outline-offset:1px}
+.q-radio{flex:none;width:20px;height:20px;border:2px solid rgba(17,24,39,.3);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.q-opt.is-on{border-color:var(--accent);background:rgba(59,130,246,.05)}
+.q-opt.is-on .q-radio{border-color:var(--accent)}
+.q-opt.is-on .q-radio::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.q-hint{margin:8px 0 0;min-height:20px;font-size:12px;line-height:1.6;color:var(--muted)}
+.q-actions{margin-top:16px;display:flex;align-items:center;gap:12px;min-height:48px}
+.q-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;border-radius:12px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;text-decoration:none}
+.q-next{margin-left:auto;min-width:144px;padding:0 24px;border:0;background:var(--accent);color:var(--accent-on);transition:background .15s}
+.q-next:hover{background:var(--accent-h)}
+.q-next:disabled{opacity:.4;cursor:not-allowed}
+.q-back{width:48px;border:1px solid rgba(17,24,39,.15);background:var(--bg);color:var(--fg)}
+.q-back:hover{background:rgba(17,24,39,.05)}
+.q-arrow{width:14px;height:14px;position:relative;display:inline-block}
+.q-arrow::before{content:"";position:absolute;left:1px;right:1px;top:50%;border-top:2px solid currentColor;transform:translateY(-50%)}
+.q-arrow::after{content:"";position:absolute;top:50%;width:7px;height:7px;border:solid currentColor;border-width:2px 2px 0 0}
+.q-arrow.r::after{right:1px;transform:translateY(-50%) rotate(45deg)}
+.q-arrow.l::after{left:1px;transform:translateY(-50%) rotate(-135deg)}
+.q-input{display:block;width:100%;margin-top:24px;font:inherit;font-size:16px;color:var(--fg);background:var(--warm);border:1px solid rgba(17,24,39,.1);border-radius:12px;padding:12px 16px}
+.q-input::placeholder{color:var(--muted)}
+.q-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.5)}
+.q-input[aria-invalid=true]{border-color:var(--danger)}
+.q-consent{margin-top:16px;display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:14px;color:var(--muted)}
+.q-consent input{margin-top:3px;accent-color:var(--accent)}
+.q-consent a{color:var(--accent);text-decoration:underline}
+.q-error{margin:8px 0 0;min-height:18px;font-size:13px;color:var(--danger)}
+.q-links{margin-top:20px;display:flex;gap:10px;flex-wrap:wrap}
+.q-link{height:44px;padding:0 20px;border:1px solid rgba(59,130,246,.4);color:var(--accent);background:var(--bg)}
+.q-link:hover{background:rgba(59,130,246,.05)}
+.q-dev{margin-top:16px;background:#fff3b0;padding:8px 10px;border-radius:6px;font-size:13px}
+@media(min-width:640px){.q-grid{grid-template-columns:repeat(6,1fr);gap:12px}.q-opt{grid-column:span 3;font-size:16px}.q-opt.wide{grid-column:span 2}}
+@media(min-width:768px){.q-panel{padding:32px}.q-title{font-size:24px}.q-sub{font-size:16px}.q-hint{font-size:14px}}
+@media(prefers-reduced-motion:reduce){.q-fill{transition:none}}
+
+/* Плавные переходы между шагами */
+.q-holder{overflow:hidden}
+.q-panel.enter{animation:q-in .28s cubic-bezier(.22,.8,.3,1) both}
+.q-panel.enter-back{animation:q-in-back .28s cubic-bezier(.22,.8,.3,1) both}
+.q-panel.leave{animation:q-out .17s ease-in both}
+.q-panel.leave-back{animation:q-out-back .17s ease-in both}
+@keyframes q-in{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes q-in-back{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:none}}
+@keyframes q-out{to{opacity:0;transform:translateX(-24px)}}
+@keyframes q-out-back{to{opacity:0;transform:translateX(24px)}}
+.q-opt{transition:border-color .15s,background .15s,transform .12s}
+.q-opt:active{transform:scale(.985)}
+.q-radio{transition:border-color .15s}
+.q-opt.is-on .q-radio::after{animation:q-pop .18s ease-out}
+@keyframes q-pop{from{transform:scale(0)}to{transform:scale(1)}}
+.q-opt.multi .q-radio{border-radius:6px}
+.q-opt.multi.is-on .q-radio{background:var(--accent)}
+.q-opt.multi.is-on .q-radio::after{width:10px;height:5px;border-radius:0;background:none;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:translateY(-1px) rotate(-45deg);animation:none}
+
+/* Выбор способа связи над телефоном */
+.q-label{margin:24px 0 8px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.q-tabs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.q-tab{height:44px;font:inherit;font-size:14px;font-weight:500;color:var(--muted);background:var(--bg);border:1px solid rgba(17,24,39,.12);border-radius:12px;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+.q-tab:hover{border-color:rgba(59,130,246,.4);color:var(--fg)}
+.q-tab.is-on{background:var(--accent);border-color:var(--accent);color:var(--accent-on)}
+.q-tab:focus-visible{outline:2px solid rgba(59,130,246,.5);outline-offset:1px}
+.q-tabs+.q-input{margin-top:12px}
+@media(min-width:640px){.q-tabs{grid-template-columns:repeat(4,1fr)}}
+@media(prefers-reduced-motion:reduce){.q-panel.enter,.q-panel.enter-back,.q-panel.leave,.q-panel.leave-back{animation:none}.q-opt,.q-tab{transition:none}.q-opt.is-on .q-radio::after{animation:none}}
