@@ -41,6 +41,13 @@
   function writeQueue(list) {
     try { window.localStorage.setItem(QUEUE_KEY, JSON.stringify(list)); } catch (e) {}
   }
+  function newId() { return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10); }
+  function beacon(payload) {
+    try {
+      if (typeof navigator === "undefined" || typeof navigator.sendBeacon !== "function") return false;
+      return navigator.sendBeacon(cfg.webhookUrl, new Blob([JSON.stringify(payload)], { type: "text/plain;charset=UTF-8" }));
+    } catch (e) { return false; }
+  }
   function same(item, payload) { return item && payload && (item.sentAt === payload.sentAt || item.phone === payload.phone); }
   function queueAdd(payload) {
     var list = readQueue();
@@ -80,12 +87,14 @@
     var data = {};
     Object.keys(payload || {}).forEach(function (k) { data[k] = payload[k]; });
     data.utm = utm(); data.page = location.href; data.sentAt = new Date().toISOString();
+    if (!data.clientId) data.clientId = newId();
     if (isLocal()) return Promise.resolve({ demo: true });
     if (!cfg.webhookUrl) return Promise.reject(new Error("no-webhook"));
     return attempt(data, 0).then(function (r) {
       queueRemove(data);
       return r;
     }, function (e) {
+      beacon(data);
       queueAdd(data);
       throw e;
     });
