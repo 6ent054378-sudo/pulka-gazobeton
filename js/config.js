@@ -7,6 +7,6 @@ window.SITE_CONFIG = {
   terms: { days: "3-5", adBudget: "2000" },
   /* Адрес приёма заявок. Инструкция в README: backend/telegram-worker.mjs */
   webhookUrl: "https://pulka-leads.pulka-leads.workers.dev",
-  metrikaId: "",
+  metrikaId: "113881017",
   demo: false
 };

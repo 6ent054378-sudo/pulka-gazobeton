@@ -20,9 +20,14 @@
     document.body.appendChild(box);
   }
 
-  if (cfg.metrikaId) {
+  if (cfg.metrikaId && !window.Lead.isLocal()) {
     (function (m, e, t, r, i, k, a) { m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments); }; m[i].l = 1 * new Date(); k = e.createElement(t); a = e.getElementsByTagName(t)[0]; k.async = 1; k.src = r; a.parentNode.insertBefore(k, a); })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
     window.ym(cfg.metrikaId, "init", { clickmap: true, trackLinks: true, accurateTrackBounce: true, webvisor: false });
   }
   window.Quiz.render();
+  if (!window.Lead.isLocal()) {
+    window.Lead.flushQueue();
+    window.addEventListener("online", function () { window.Lead.flushQueue(); });
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) window.Lead.flushQueue(); });
+  }
 })();

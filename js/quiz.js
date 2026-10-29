@@ -1,9 +1,9 @@
 /* Квиз: ветвление по ответам, плавные переходы, финальный шаг с выбором связи и телефоном. */
 (function () {
-  var cfg = window.SITE_CONFIG, Lead = window.Lead, ALL = window.QUIZ_STEPS, CHANNELS = window.QUIZ_CHANNELS;
+  var cfg = window.SITE_CONFIG, Lead = window.Lead, ALL = window.QUIZ_STEPS;
   var root = document.getElementById("quiz");
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var state = { i: 0, answers: { channel: CHANNELS[0] }, busy: false, timer: null };
+  var state = { i: 0, answers: {}, busy: false, timer: null };
   var fill = el("div", { class: "q-fill" });
   var holder = el("div", { class: "q-holder" });
   root.appendChild(el("div", { class: "q-bar" }, [fill])); root.appendChild(holder);
@@ -89,20 +89,6 @@
     var panel = el("div", { class: "q-panel" });
     panel.appendChild(el("h2", { class: "q-title", tabindex: "-1", id: "q-title", text: "Напишите номер телефона" }));
     panel.appendChild(el("p", { class: "q-sub", text: "и узнайте, сколько заявок система даст в вашем случае" }));
-    panel.appendChild(el("p", { class: "q-label", id: "q-ch-label", text: "Выберите способ связи" }));
-    var tabs = el("div", { class: "q-tabs", role: "radiogroup", "aria-labelledby": "q-ch-label" });
-    CHANNELS.forEach(function (c) {
-      var on = state.answers.channel === c;
-      var t = el("button", { type: "button", role: "radio", "aria-checked": on ? "true" : "false", class: "q-tab" + (on ? " is-on" : ""), text: c });
-      t.addEventListener("click", function () {
-        state.answers.channel = c;
-        tabs.querySelectorAll(".q-tab").forEach(function (x) { x.classList.remove("is-on"); x.setAttribute("aria-checked", "false"); });
-        t.classList.add("is-on"); t.setAttribute("aria-checked", "true");
-        phone.focus({ preventScroll: true });
-      });
-      tabs.appendChild(t);
-    });
-    panel.appendChild(tabs);
     var phone = el("input", { type: "tel", class: "q-input", inputmode: "tel", autocomplete: "tel", placeholder: "+7 (000) 000-00-00", maxlength: "18", "aria-label": "Номер телефона", "aria-describedby": "q-hint", "aria-invalid": "false" });
     Lead.maskPhone(phone);
     var hint = el("p", { class: "q-hint", id: "q-hint", text: "Введите 10 цифр после +7" });
@@ -118,11 +104,11 @@
       if (!ready() || submit.dataset.sending) return;
       submit.dataset.sending = "1"; submit.disabled = true; submit.firstChild.textContent = "Отправляем";
       var a = {}; Object.keys(state.answers).forEach(function (k) { a[k] = Array.isArray(state.answers[k]) ? state.answers[k].join(", ") : state.answers[k]; });
-      Lead.send({ phone: phone.value, channel: state.answers.channel, answers: a })
+      Lead.send({ phone: phone.value, channel: "Телефон", answers: a })
         .then(function () { Lead.goal("lead_sent"); showDone(); })
         .catch(function () {
           delete submit.dataset.sending; submit.disabled = false; submit.firstChild.textContent = "Получить предложение";
-          err.textContent = "Не удалось отправить. " + (cfg.contacts.phoneText ? "Позвоните: " + cfg.contacts.phoneText : "Попробуйте ещё раз чуть позже.");
+          err.textContent = "Не удалось отправить. Номер сохранён, попробую снова при следующем открытии." + (cfg.contacts.phoneText ? " Или позвоните: " + cfg.contacts.phoneText : "");
         });
     }
     submit.addEventListener("click", send);
@@ -136,12 +122,7 @@
     var panel = el("div", { class: "q-panel" });
     panel.appendChild(el("h2", { class: "q-title", tabindex: "-1", text: "Заявка принята" }));
     panel.appendChild(el("p", { class: "q-sub", text: "Свяжусь с вами в рабочее время и пришлю расчёт под ваш бизнес и бюджет." }));
-    var links = el("div", { class: "q-links" });
-    [["Telegram", cfg.contacts.telegram], ["MAX", cfg.contacts.max], ["WhatsApp", cfg.contacts.whatsapp]].forEach(function (p) {
-      if (p[1]) links.appendChild(el("a", { class: "q-btn q-link", href: p[1], target: "_blank", rel: "noopener", text: "Написать в " + p[0] }));
-    });
-    if (links.children.length) panel.appendChild(links);
-    if (Lead.isLocal() && !cfg.webhookUrl) panel.appendChild(el("p", { class: "q-dev", text: "Режим проверки: webhookUrl в js/config.js не задан, заявка никуда не ушла." }));
+    if (Lead.isLocal()) panel.appendChild(el("p", { class: "q-dev", text: "Режим проверки: локальный запуск, заявка никуда не ушла." }));
     return panel;
   }
   function showDone() { setBar(true); show(donePanel, "next"); }
