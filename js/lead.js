@@ -41,7 +41,7 @@
   function writeQueue(list) {
     try { window.localStorage.setItem(QUEUE_KEY, JSON.stringify(list)); } catch (e) {}
   }
-  function same(item, payload) { return item && payload && item.sentAt === payload.sentAt && item.phone === payload.phone; }
+  function same(item, payload) { return item && payload && (item.sentAt === payload.sentAt || item.phone === payload.phone); }
   function queueAdd(payload) {
     var list = readQueue();
     list.push(payload);
@@ -101,6 +101,8 @@
     var chain = Promise.resolve();
     list.forEach(function (item) {
       chain = chain.then(function () {
+        var still = readQueue().some(function (x) { return same(x, item); });
+        if (!still) return;
         return post(item).then(function () { queueRemove(item); sent += 1; }, function () {});
       });
     });
